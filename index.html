@@ -11,20 +11,23 @@
       <div>
         <div class="bg-gray-200 md:overflow-hidden">
           <div class="px-4 py-8">
-            <div class="relative w-full md:max-w-2xl md:mx-auto text-center">
+            <div
+              class="flex flex-col items-center relative w-full md:max-w-2xl md:mx-auto text-center"
+            >
               <h1
-                class="font-bold text-gray-700 text-xl sm:text-2xl md:text-5xl leading-tight mb-6"
+                class="font-bold text-gray-700 text-lg sm:text-2xl md:text-4xl leading-tight mb-6"
               >
                 Excusinator
               </h1>
 
-              <p class="text-gray-600 md:text-lg md:px-16">
+              <p class="text-gray-600 md:text-md md:px-16">
                 Tired of coming up with excuses for work? Wanna go to that party
                 you have been waiting for or just lay in bed without the hassle
                 of making up a new excuse every time? We got you covered!
               </p>
 
               <button
+                onclick="handleAuthClick()"
                 id="authorize_button"
                 type="button"
                 class="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 mr-2 mt-6"
@@ -48,9 +51,10 @@
               </button>
 
               <button
+                onclick="handleSignoutClick()"
                 id="signout_button"
                 type="button"
-                class="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 mr-2 mt-6"
+                class="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:focus:ring-[#4285F4]/55 mr-2 -mt-6"
               >
                 <svg
                   class="mr-2 -ml-1 w-4 h-4"
@@ -136,7 +140,7 @@
                   <div
                     class="flex flex-col justify-evenly py-12 px-10 w-2/3 text-lg text-gray-600 font-mono"
                   >
-                    <h1>Step 1) Login with your Google account</h1>
+                    <h1>Step 1) Sign in with your Google account</h1>
                     <h1>Step 2) Select category of excuse</h1>
                     <h1>Step 3) Enter recepient email</h1>
                     <h1>
@@ -175,7 +179,7 @@
                       class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500"
                     />
                     <label
-                      for="horizontal-list-radio-passport"
+                      for="horizontal-list-radio-friendsfam"
                       class="py-3 ml-2 w-full text-sm font-medium text-gray-900 dark:text-gray-300"
                       >Friends / Family</label
                     >
@@ -264,7 +268,8 @@
               </div>
 
               <div
-                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                onclick="sendEmail()"
+                class="hover:cursor-pointer text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
               >
                 SEND!
               </div>
@@ -273,5 +278,251 @@
         </div>
       </div>
     </div>
+
+    <!-- Scripts -->
+    <script type="text/javascript">
+      /* exported gapiLoaded */
+      /* exported gisLoaded */
+      /* exported handleAuthClick */
+      /* exported handleSignoutClick */
+
+      const excuses = {
+        friendsfam: [
+          "I am busy with some urgent work.",
+          "my cat died.",
+          "I am busy stalking my neighbour.",
+          "I am constipated.",
+          "I hate you.",
+          "a fortune teller told me it's an unlucky day.",
+          "I need to attend my boss's pet's funeral.",
+          "my wig flew off in the wind and this is very embarrassing.",
+          "I don't want to spoil my mood.",
+          "I am busy gambling my savings.",
+          "I woke up with a good mood and I don't want to ruin it.",
+        ],
+        work: [
+          "I am busy stalking my neighbour.",
+          "my grandma died.",
+          "I hate my boss.",
+          "Grandma tried to poison me. Again.",
+          "there is a spider in my room and it's staring at me.",
+          "I broke my arm trying to grab a sandwich.",
+          "I need to attend my cousin's pet's funeral.",
+          "my wig flew off in the wind and this is very embarrassing.",
+          "my fish is unwell.",
+          "I have better things to do.",
+          "I woke up with a good mood and I don't want to ruin it.",
+        ],
+        college: [
+          "I am busy stalking my neighbour.",
+          "my grandma died.",
+          "I hate my professor.",
+          "Grandma tried to poison me. Again.",
+          "there is a spider in my room and it's staring at me.",
+          "I broke my arm trying to grab a sandwich.",
+          "I need to attend my cousin's pet's funeral.",
+          "I am suffering from a hangover.",
+          "I slept late last night.",
+          "a single sheet of paper can't decide my future.",
+          "I woke up with a good mood and I don't want to ruin it.",
+        ],
+      };
+
+      // TODO(developer): Set to client ID and API key from the Developer Console
+      const CLIENT_ID = "SECRET";
+      const API_KEY = "SECRET";
+
+      // Discovery doc URL for APIs used by the quickstart
+      const DISCOVERY_DOC =
+        "https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest";
+
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      const SCOPES =
+        "https://www.googleapis.com/auth/gmail.metadata " +
+        "https://www.googleapis.com/auth/gmail.send";
+
+      let tokenClient;
+      let gapiInited = false;
+      let gisInited = false;
+
+      document.getElementById("authorize_button").style.visibility = "visible";
+      document.getElementById("signout_button").style.visibility = "hidden";
+
+      /**
+       * Callback after api.js is loaded.
+       */
+      function gapiLoaded() {
+        gapi.load("client", intializeGapiClient);
+      }
+
+      /**
+       * Callback after the API client is loaded. Loads the
+       * discovery doc to initialize the API.
+       */
+      async function intializeGapiClient() {
+        await gapi.client.init({
+          apiKey: API_KEY,
+          discoveryDocs: [DISCOVERY_DOC],
+        });
+        gapiInited = true;
+        maybeEnableButtons();
+      }
+
+      /**
+       * Callback after Google Identity Services are loaded.
+       */
+      function gisLoaded() {
+        tokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: "", // defined later
+        });
+        gisInited = true;
+        maybeEnableButtons();
+      }
+
+      /**
+       * Enables user interaction after all libraries are loaded.
+       */
+      function maybeEnableButtons() {
+        if (gapiInited && gisInited) {
+          document.getElementById("authorize_button").style.visibility =
+            "visible";
+        }
+      }
+
+      /**
+       *  Sign in the user upon button click.
+       */
+      function handleAuthClick() {
+        tokenClient.callback = async (resp) => {
+          if (resp.error !== undefined) {
+            throw resp;
+          }
+          document.getElementById("signout_button").style.visibility =
+            "visible";
+          document.getElementById("authorize_button").style.visibility =
+            "hidden";
+          //   await sendEmail();
+        };
+
+        if (gapi.client.getToken() === null) {
+          // Prompt the user to select a Google Account and ask for consent to share their data
+          // when establishing a new session.
+          tokenClient.requestAccessToken({ prompt: "consent" });
+        } else {
+          // Skip display of account chooser and consent dialog for an existing session.
+          tokenClient.requestAccessToken({ prompt: "" });
+        }
+      }
+
+      /**
+       *  Sign out the user upon button click.
+       */
+      function handleSignoutClick() {
+        const token = gapi.client.getToken();
+        if (token !== null) {
+          google.accounts.oauth2.revoke(token.access_token);
+          gapi.client.setToken("");
+          document.getElementById("signout_button").style.visibility = "hidden";
+          document.getElementById("authorize_button").style.visibility =
+            "visible";
+          document.getElementById("email").value = "";
+          document.getElementById("subject").value = "";
+          document.getElementById("context").value = "";
+        }
+      }
+
+      async function sendEmail() {
+        try {
+          await gapi.client.gmail.users.getProfile({ userId: "me" }).then(
+            (res) => {
+              const fromEmail = res.result.emailAddress;
+              let valid_excuse;
+              let random = Math.floor(Math.random() * 11);
+              if (
+                document.getElementById("horizontal-list-radio-friendsfam")
+                  .checked == true
+              )
+                valid_excuse = excuses.friendsfam[random];
+              else if (
+                document.getElementById("horizontal-list-radio-work").checked ==
+                true
+              )
+                valid_excuse = excuses.work[random];
+              else if (
+                document.getElementById("horizontal-list-radio-college")
+                  .checked == true
+              )
+                valid_excuse = excuses.college[random];
+              let contact = document.getElementById("email").value;
+              let subject = document.getElementById("subject").value;
+              let context = document.getElementById("context").value;
+              console.log("from:" + fromEmail);
+              const message =
+                "To: " +
+                contact +
+                "\r\n" +
+                "Subject: " +
+                subject +
+                "\r\n\r\n" +
+                "Hello,\n\n" +
+                context +
+                " " +
+                valid_excuse +
+                " I hope you understand.\n\nRegards.";
+
+              // The body needs to be base64url encoded.
+              const encodedMessage = btoa(message)
+                .replace(/\+/g, "-")
+                .replace(/\//g, "_")
+                .replace(/=+$/, "");
+
+              let response;
+              gapi.client.gmail.users.messages
+                .send({
+                  userId: "me",
+                  resource: {
+                    raw: encodedMessage,
+                  },
+                })
+                .then(
+                  function (response) {
+                    console.log("Message sent.");
+                    alert("Your mail has been sent!");
+                    document.getElementById("email").value = "";
+                    document.getElementById("subject").value = "";
+                    document.getElementById("context").value = "";
+                  },
+                  function (error) {
+                    alert("Error! Couldn't send the mail.");
+                    console.log("err" + error);
+                  }
+                );
+            },
+            (err) => {
+              alert("Are you sure you have signed in?");
+              console.log("no acc");
+            }
+          );
+        } catch (err) {
+          console.log("here" + err);
+          return;
+        }
+      }
+    </script>
+    <script
+      async
+      defer
+      src="https://apis.google.com/js/api.js"
+      onload="gapiLoaded()"
+    ></script>
+    <script
+      async
+      defer
+      src="https://accounts.google.com/gsi/client"
+      onload="gisLoaded()"
+    ></script>
   </body>
 </html>
